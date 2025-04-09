@@ -6,21 +6,17 @@ import (
 )
 
 func FillStruct[T any]() T {
-	var res T
-	t := reflect.TypeOf(res)
-	if t.Kind() == reflect.Struct {
-		v := reflect.New(t).Elem()
-		fillValue(v)
-		return v.Interface().(T)
-	}
-	if t.Kind() == reflect.Ptr {
-		v := reflect.New(t.Elem())
-		if t.Elem().Kind() == reflect.Struct {
-			fillValue(v.Elem())
+	var x T
+	typ := reflect.TypeOf(x)
+	for t := typ; t.Kind() != reflect.Struct; t = t.Elem() {
+		if t.Kind() == reflect.Ptr {
+			continue
 		}
-		return v.Interface().(T)
+		return x
 	}
-	return res
+	v := reflect.New(typ).Elem()
+	fillValue(v)
+	return v.Interface().(T)
 }
 
 func fillValue(v reflect.Value) {
